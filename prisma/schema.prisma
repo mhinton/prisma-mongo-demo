@@ -1,0 +1,153 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["mongoDb"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model countyGeoIds {
+  id     String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  county String
+}
+
+model dva_rate {
+  id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v         Int      @map("__v")
+  county    String
+  createdAt DateTime @db.Date
+  data      Json[]
+  /// Double: 89.3%, Int32: 10.7%
+  goal      Float
+
+  @@index([county], map: "county_1")
+}
+
+model goals {
+  id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v         Int      @map("__v")
+  county    String
+  createdAt DateTime @db.Date
+  /// Double: 92.2%, Int32: 7.8%
+  newGoal   Float
+  /// Double: 90.2%, Int32: 9.8%
+  origGoal  Float
+
+  @@index([county], map: "c2_county")
+}
+
+model harvest {
+  id       String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v        Int    @map("__v")
+  ageClass String
+  county   String
+  gender   String
+  season   String
+  total    Int
+  year     Int
+
+  @@index([county], map: "county_1")
+  @@index([year], map: "year_1")
+  @@index([season], map: "season_1")
+  @@index([gender], map: "gender_1")
+  @@index([ageClass], map: "ageClass_1")
+}
+
+model incidents {
+  id             String    @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v              Int?      @map("__v")
+  actionTaken    String?
+  archive        Boolean?
+  biologist      String?
+  county         String
+  createdAt      DateTime  @db.Date
+  dateHandled    DateTime? @db.Date
+  deadRange      String
+  diseaseType    String?
+  email          String?
+  locDetails     String?
+  name           String?
+  notes          String?
+  phone          String?
+  photoTaken     Boolean?
+  photos         Json[]
+  sickRange      String?
+  symptom1       Boolean?
+  symptom2       Boolean?
+  symptom3       Boolean?
+  symptom4       Boolean?
+  symptom5       Boolean?
+  symptom6       Boolean?
+  symptom7       Boolean?
+  symptomOther   String?
+  updatedAt      DateTime? @db.Date
+  waterProximity String?
+
+  @@index([diseaseType], map: "c2_diseaseType")
+}
+
+model licenses {
+  id String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+}
+
+model mappings {
+  id     String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  result String
+  source String
+
+  @@index([source], map: "source_1")
+}
+
+model permits {
+  id String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+}
+
+model sample_totals {
+  id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v         Int      @map("__v")
+  county    String
+  createdAt DateTime @db.Date
+  /// Double: 86.9%, Int32: 13.1%
+  dvarate   Float
+  /// Double: 92.8%, Int32: 7.2%
+  newGoal   Float?
+  /// Double: 91.2%, Int32: 8.8%
+  oldGoal   Float?
+  year      Int
+
+  @@index([year], map: "c2_year")
+  @@index([county], map: "c2_county")
+}
+
+model searches {
+  id               String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  hits             Int
+  mappedSearchText String
+  mappingsApplied  Boolean
+  query            Json
+  searchText       String
+  when             DateTime @db.Date
+}
+
+model searches_meta {
+  id       String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  lastWhen DateTime @db.Date
+}
+
+model sites {
+  id String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+}
+
+model users {
+  id          String    @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v           Int?      @map("__v")
+  bcrypt_hash String?
+  createdAt   DateTime? @db.Date
+  email       String?
+  emails      Json[]
+  services    Json?
+  token       String?
+  username    String    @unique(map: "username_1")
+}
