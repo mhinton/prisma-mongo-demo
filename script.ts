@@ -9,9 +9,28 @@ async function main() {
   // })
   // console.dir(allUsers, { depth: null })
 
-  const counties = await prisma.harvest.findMany({ select: { county: true }, distinct: ["county"] });
+  // const counties = await prisma.harvest.findMany({ select: { county: true }, distinct: ["county"] });
+  
+  const permit = await prisma.permits.findFirst({
+    where: {
+      NOT: [
+        {
+          sections: { isEmpty: true }
+        }
+      ]
+    }
+  });
   // use `console.dir` to print nested objects
-  console.dir(counties, { depth: null});
+  console.dir(permit, { depth: null });
+  
+  const sections = await prisma.permit_sections.findMany({
+    where: {
+      id: {
+        in: permit?.sections
+      }
+    }
+  });
+  console.dir(sections, { depth: null });
 }
 
 main()

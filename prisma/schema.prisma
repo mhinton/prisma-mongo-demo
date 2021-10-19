@@ -8,146 +8,123 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model countyGeoIds {
-  id     String @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  county String
-}
-
-model dva_rate {
+model animals {
   id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
   v         Int      @map("__v")
-  county    String
+  action    String
   createdAt DateTime @db.Date
-  data      Json[]
-  /// Double: 89.3%, Int32: 10.7%
-  goal      Float
-
-  @@index([county], map: "county_1")
+  name      String   @unique(map: "name_1")
+  plural    String   @unique(map: "plural_1")
+  updatedAt DateTime @db.Date
 }
 
-model goals {
+model application_logs {
   id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
   v         Int      @map("__v")
-  county    String
+  action    String
   createdAt DateTime @db.Date
-  /// Double: 92.2%, Int32: 7.8%
-  newGoal   Float
-  /// Double: 90.2%, Int32: 9.8%
-  origGoal  Float
+  payload   Json?
+  user      String   @db.ObjectId
 
-  @@index([county], map: "c2_county")
+  @@index([user], map: "user_1")
 }
 
-model harvest {
-  id       String @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  v        Int    @map("__v")
-  ageClass String
-  county   String
-  gender   String
-  season   String
-  total    Int
-  year     Int
+model communication_templates {
+  id               String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v                Int      @map("__v")
+  action           String?
+  animal           String?  @db.ObjectId
+  contacts         String[] @db.ObjectId
+  /// Multiple data types found: Array(String): 77.8%, Array(Document): 22.2% out of 1000 sampled entries
+  content          String[]
+  createdAt        DateTime @db.Date
+  notificationText String?
+  popupContent     String?
+  subject          String?
+  updatedAt        DateTime @db.Date
 
-  @@index([county], map: "county_1")
-  @@index([year], map: "year_1")
-  @@index([season], map: "season_1")
-  @@index([gender], map: "gender_1")
-  @@index([ageClass], map: "ageClass_1")
+  @@index([animal], map: "animal_1")
+  @@index([action], map: "action_1")
+  @@index([contacts], map: "contacts_1")
 }
 
-model incidents {
-  id             String    @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  v              Int?      @map("__v")
-  actionTaken    String?
-  archive        Boolean?
-  biologist      String?
-  county         String
-  createdAt      DateTime  @db.Date
-  dateHandled    DateTime? @db.Date
-  deadRange      String
-  diseaseType    String?
-  email          String?
-  locDetails     String?
-  name           String?
-  notes          String?
-  phone          String?
-  photoTaken     Boolean?
-  photos         Json[]
-  sickRange      String?
-  symptom1       Boolean?
-  symptom2       Boolean?
-  symptom3       Boolean?
-  symptom4       Boolean?
-  symptom5       Boolean?
-  symptom6       Boolean?
-  symptom7       Boolean?
-  symptomOther   String?
-  updatedAt      DateTime? @db.Date
-  waterProximity String?
-
-  @@index([diseaseType], map: "c2_diseaseType")
+model emails {
+  id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v         Int      @map("__v")
+  cognitoId String?
+  content   String
+  createdAt DateTime @db.Date
+  permit    String?  @db.ObjectId
+  to        String?
 }
 
-model licenses {
-  id String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+model idnr_contacts {
+  id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v         Int      @map("__v")
+  counties  String[]
+  createdAt DateTime @db.Date
+  email     String   @unique(map: "email_1")
+  name      String   @unique(map: "name_1")
+  updatedAt DateTime @db.Date
+
+  @@index([counties], map: "counties_1")
 }
 
-model mappings {
-  id     String @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  result String
-  source String
+model permit_sections {
+  id              String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v               Int      @map("__v")
+  createdAt       DateTime @db.Date
+  pageName        String
+  permitId        String   @db.ObjectId
+  selectedOptions Json[]
+  updatedAt       DateTime @db.Date
 
-  @@index([source], map: "source_1")
+  @@index([pageName], map: "pageName_1")
 }
 
 model permits {
-  id String @id @default(dbgenerated()) @map("_id") @db.ObjectId
-}
+  id             String                  @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v              Int                     @map("__v")
+  accepted       Boolean
+  animal         String                  @db.ObjectId
+  city           String
+  // communications Unsupported("Unknown")?
+  county         String
+  createdAt      DateTime                @db.Date
+  damage         String
+  disposed       Int?
+  // renamedId      String                  @map("id")
+  permitEnd      DateTime                @db.Date
+  permitLength   Int
+  permitStart    DateTime                @db.Date
+  phone          String
+  relocated      Int?
+  reportComments String?
+  sections       String[]                @db.ObjectId
+  status         String
+  street         String
+  updatedAt      DateTime                @db.Date
+  user           String                  @db.ObjectId
+  zip            String
 
-model sample_totals {
-  id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  v         Int      @map("__v")
-  county    String
-  createdAt DateTime @db.Date
-  /// Double: 86.9%, Int32: 13.1%
-  dvarate   Float
-  /// Double: 92.8%, Int32: 7.2%
-  newGoal   Float?
-  /// Double: 91.2%, Int32: 8.8%
-  oldGoal   Float?
-  year      Int
-
-  @@index([year], map: "c2_year")
-  @@index([county], map: "c2_county")
-}
-
-model searches {
-  id               String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  hits             Int
-  mappedSearchText String
-  mappingsApplied  Boolean
-  query            Json
-  searchText       String
-  when             DateTime @db.Date
-}
-
-model searches_meta {
-  id       String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  lastWhen DateTime @db.Date
-}
-
-model sites {
-  id String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  @@index([animal], map: "animal_1")
+  @@index([user], map: "user_1")
+  @@index([status], map: "status_1")
+  @@index([permitEnd], map: "permitEnd_1")
 }
 
 model users {
-  id          String    @id @default(dbgenerated()) @map("_id") @db.ObjectId
-  v           Int?      @map("__v")
-  bcrypt_hash String?
-  createdAt   DateTime? @db.Date
-  email       String?
-  emails      Json[]
-  services    Json?
-  token       String?
-  username    String    @unique(map: "username_1")
+  id                 String    @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  v                  Int       @map("__v")
+  cognitoId          String    @unique(map: "cognitoId_1")
+  contactPreferences Json[]
+  createdAt          DateTime  @db.Date
+  email              String    @unique(map: "email_1")
+  firstName          String
+  lastName           String
+  permits            String[]  @db.ObjectId
+  role               String
+  updatedAt          DateTime? @db.Date
+  userAgreement      DateTime  @db.Date
+  userType           String
 }
